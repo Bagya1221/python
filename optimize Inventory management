@@ -1,0 +1,47 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Function to calculate Economic Order Quantity (EOQ)
+def calculate_eoq(demand, ordering_cost, holding_cost):
+    eoq = np.sqrt((2 * demand * ordering_cost) / holding_cost)
+    return eoq
+
+# Function to calculate safety stock
+def calculate_safety_stock(demand, lead_time, std_dev_demand, std_dev_lead_time, service_level):
+    z = 1.96  # Z-value for 95% service level
+    safety_stock = z * np.sqrt((std_dev_demand**2 * lead_time) + (demand**2 * std_dev_lead_time**2))
+    return safety_stock
+
+# Given parameters
+demand_per_period = 100  # units
+ordering_cost_per_order = 50  # currency units per order
+holding_cost_per_unit_per_period = 2  # currency units per unit per period
+lead_time = 2  # periods
+std_dev_demand = 10  # units
+std_dev_lead_time = 0.5  # periods
+service_level = 0.95  # 95% service level
+
+# Calculate EOQ
+eoq = calculate_eoq(demand_per_period, ordering_cost_per_order, holding_cost_per_unit_per_period)
+
+# Calculate safety stock
+safety_stock = calculate_safety_stock(demand_per_period, lead_time, std_dev_demand, std_dev_lead_time, service_level)
+
+# Visualize the inventory level over time
+time_periods = np.arange(1, 101)
+inventory_level = np.zeros(100)
+inventory_level[0] = eoq + safety_stock
+for i in range(1, 100):
+    if i % lead_time == 0:
+        inventory_level[i] = eoq + safety_stock
+    else:
+        inventory_level[i] = max(0, inventory_level[i-1] - demand_per_period)
+
+plt.plot(time_periods, inventory_level)
+plt.title('Inventory Level Over Time')
+plt.xlabel('Time Period')
+plt.ylabel('Inventory Level')
+plt.show()
+
+print("EOQ:", eoq)
+print("Safety Stock:", safety_stock)
